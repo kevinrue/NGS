@@ -1,11 +1,9 @@
 __author__ = 'Kevin Rue-Albrecht'
 
 
-# Module argparse allows to process the arguments from the command line
 import argparse
-# Module os allows to get the current working directory
 import os
-# Module sys allows to collect flags and arguments from the command line
+import re
 import sys
 
 
@@ -26,63 +24,77 @@ def get_input_reports(list_reports):
     return files_in
 
 
-def get_report_statistics(input_report):
+def get_report_statistics(input_report, pattern):
+    #
     statistics = []
+    command_line = None
     statistics_line = None
     with open(input_report) as filein:
         for line in filein:
             if line.startswith("Input Read Pairs"):
                 statistics_line = line
+            elif line.find("Started with arguments") > 0:
+                command_line = line
+    #
     if not statistics_line:
         print('Could not find line starting with "Input Read Pairs" in file: %s' % input_report)
         sys.exit(2)
     #
+    if not command_line:
+        print('Could not find line containing "Started with arguments" in file: %s' % input_report)
+        sys.exit(2)
+    #
+    print(command_line)
+    statistics.append(re.search(pattern, command_line).group())
+    print(statistics[0])
+    # Input pairs count
     first_colon_index = statistics_line.index(':')
     both_index = statistics_line.index('Both')
     statistics.append(statistics_line[first_colon_index + 2:both_index - 1])
-    #
+    # Both surviving count
     first_surviving_index = statistics_line.index('Surviving')
     first_bracket_index = statistics_line.index('(')
     statistics.append(statistics_line[first_surviving_index + 11:first_bracket_index - 1])
-    #
+    # Both surviving percentage
     first_percent_index = statistics_line.index('%')
     statistics.append(statistics_line[first_bracket_index + 1:first_percent_index])
-    #print("Test: surviving_both_percent: %s%%" % surviving_both_percent)
+    # Forward only count
     second_surviving_index = statistics_line.index('Surviving', first_percent_index)
     second_bracket_index = statistics_line.index('(', second_surviving_index)
     statistics.append(statistics_line[second_surviving_index + 11:second_bracket_index - 1])
-    #print("Test: surviving_forward_only_count: %s" % surviving_forward_only_count)
+    # Forward only percentage
     second_percent_index = statistics_line.index('%', second_bracket_index)
     statistics.append(statistics_line[second_bracket_index + 1:second_percent_index])
-    #print("Test: surviving_forward_only_percent: %s%%" % surviving_forward_only_percent)
+    # Reverse only count
     third_surviving_index = statistics_line.index('Surviving', second_percent_index)
     third_bracket_index = statistics_line.index('(', third_surviving_index)
     statistics.append(statistics_line[third_surviving_index + 11:third_bracket_index - 1])
-    #print("Test: surviving_reverse_only_count: %s" % surviving_reverse_only_count)
+    # Reverse only percentage
     third_percent_index = statistics_line.index('%', third_bracket_index)
     statistics.append(statistics_line[third_bracket_index + 1:third_percent_index])
-    #print("Test: surviving_reverse_only_percent: %s%%" % surviving_reverse_only_percent)
+    # Dropped count
     dropped_index = statistics_line.index('Dropped', third_percent_index)
     fourth_bracket_index = statistics_line.index('(', dropped_index)
     statistics.append(statistics_line[dropped_index + 9:fourth_bracket_index - 1])
-    #print("Test: dropped_count: %s" % dropped_count)
+    # Dropped percentage
     fourth_percent_index = statistics_line.index('%', fourth_bracket_index)
     statistics.append(statistics_line[fourth_bracket_index + 1:fourth_percent_index])
-    #print("Test: dropped_percent: %s%%" % dropped_percent)
+    #
     return statistics
 
 
-def get_reports_statistics(input_reports):
+def get_reports_statistics(input_reports, pattern):
     statistics = []
     for input_report in input_reports:
-        statistics.append(get_report_statistics(input_report))
+        statistics.append(get_report_statistics(input_report, pattern))
     return statistics
 
 
 def write_report_statistics(report_statistics, output):
     with open(output, 'w') as fileout:
-        fileout.write('\t'.join(['Input_count', 'Both_count', 'Both_percent', 'Forward_count', 'Forward_percent',
-                                 'Reverse_count', 'Reverse_percent', 'Dropped_count', 'Dropped_percent\n']))
+        fileout.write('\t'.join(['Sample', 'Input_count', 'Both_count', 'Both_percent', 'Forward_count',
+                                 'Forward_percent', 'Reverse_count', 'Reverse_percent', 'Dropped_count',
+                                 'Dropped_percent\n']))
         for statistics in report_statistics:
             statistics.append('\n')
             fileout.write('\t'.join(statistics))
@@ -101,9 +113,13 @@ def __main__():
     parser.add_argument('-o', '--output', required=True,
                         help="Name of the file to write the output to.",
                         metavar='summary.txt')
+    # Mandatory argument: pattern of sample name in Trimmomatic command line
+    parser.add_argument('-p', '--pattern', required=True,
+                        help="Pattern of the sample to search in the Trimmomatic command line",
+                        metavar='regex')
     # parse command line options according to the rules defined above
     args = parser.parse_args(sys.argv[1:])
-    #print("Test: args: %s\n" % args)
+    print("Test: args: %s\n" % args)
     # sanity check: make sure that the input file exists
     if not os.path.isfile(args.list_reports):
         print("Error: File of reports was not found: %s" % args.list_reports)
@@ -112,7 +128,7 @@ def __main__():
     input_reports = get_input_reports(args.list_reports)
     #print("Test: input_reports: %s\n" % input_reports)
     # Collect the statistics from each individual report
-    report_statistics = get_reports_statistics(input_reports)
+    report_statistics = get_reports_statistics(input_reports, args.pattern)
     #print("Test: report_statistics: %s\n" % report_statistics)
     # Write the report statistics in the output file
     write_report_statistics(report_statistics, args.output)
