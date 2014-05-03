@@ -85,7 +85,6 @@ def write_report_statistics(report_statistics, output):
                                  'Reverse_count', 'Reverse_percent', 'Dropped_count', 'Dropped_percent\n']))
         for statistics in report_statistics:
             statistics.append('\n')
-            print(statistics)
             fileout.write('\t'.join(statistics))
 
 
@@ -104,19 +103,21 @@ def __main__():
                         metavar='summary.txt')
     # parse command line options according to the rules defined above
     args = parser.parse_args(sys.argv[1:])
-    print("Test: args: %s\n" % args)
+    #print("Test: args: %s\n" % args)
     # sanity check: make sure that the input file exists
     if not os.path.isfile(args.list_reports):
         print("Error: File of reports was not found: %s" % args.list_reports)
         sys.exit(2)
     # Get the list of report files to summarise
     input_reports = get_input_reports(args.list_reports)
-    print("Test: input_reports: %s\n" % input_reports)
+    #print("Test: input_reports: %s\n" % input_reports)
     # Collect the statistics from each individual report
     report_statistics = get_reports_statistics(input_reports)
-    print("Test: report_statistics: %s\n" % report_statistics)
+    #print("Test: report_statistics: %s\n" % report_statistics)
     # Write the report statistics in the output file
     write_report_statistics(report_statistics, args.output)
+    #
+    print("Info: Successfully compiled trimmomatic results in file: %s" % args.output)
 
 
 if __name__ == "__main__":
