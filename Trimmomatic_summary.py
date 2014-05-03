@@ -44,9 +44,9 @@ def get_report_statistics(input_report, pattern):
         print('Could not find line containing "Started with arguments" in file: %s' % input_report)
         sys.exit(2)
     #
-    print(command_line)
+    #print(command_line)
     statistics.append(re.search(pattern, command_line).group())
-    print(statistics[0])
+    #print(statistics[0])
     # Input pairs count
     first_colon_index = statistics_line.index(':')
     both_index = statistics_line.index('Both')
@@ -119,7 +119,7 @@ def __main__():
                         metavar='regex')
     # parse command line options according to the rules defined above
     args = parser.parse_args(sys.argv[1:])
-    print("Test: args: %s\n" % args)
+    #print("Test: args: %s\n" % args)
     # sanity check: make sure that the input file exists
     if not os.path.isfile(args.list_reports):
         print("Error: File of reports was not found: %s" % args.list_reports)
