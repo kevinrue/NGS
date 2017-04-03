@@ -1,6 +1,6 @@
 
 stopifnot(
-    requireNamespace('edgeR'),
+    require('edgeR'),
     requireNamespace('DESeq2')
 )
 
@@ -80,12 +80,10 @@ importCounts <- function(x){
     # Parse all counts files
     RG <- edgeR::readDGE(x, group = x$Group, labels = x$SampleName)
     # Identify metatags if any
-    metaTags <- grepl('^__', rownames(RG$counts))
+    metaTags <- grepl('^__', rownames(RG[['counts']]))
     message('Meta tags dropped')
-    # Exclude metatags if any
-    RG <- RG[!metaTags,]
-    # Recalculate the (true) library size after removing meta-tags
-    RG$samples$lib.size <- colSums(RG$counts)
+    # Exclude metatags if any; recalculate (true) library size
+    RG <- RG[!metaTags, keep.lib.sizes = FALSE]
     return(RG)
 }
 
@@ -105,50 +103,63 @@ filterCounts <- function(x, cpm = 1, fraction = 0.8){
 getDE.DESeq2 <- function(dge, groupTarget, groupRef, outFolder = 'DESeq2'){
     if (all(is.na(dge$samples$Batch))){
         colData <- dge$samples[,'Group', drop = FALSE]
-        dds <- DESeqDataSetFromMatrix(
+        dds <- DESeq2::DESeqDataSetFromMatrix(
             dge$counts, colData, formula(~ Group)
         )
     } else {
-        message('NOTE: Batch information supplied')
+        message('NOTE: Batch information applied')
         colData <- dge$samples[,c('Group', 'Batch')]
-        dds <- DESeqDataSetFromMatrix(
+        dds <- DESeq2::DESeqDataSetFromMatrix(
             countMat, colData,formula(~ condition + Batch)
         )
     }
-    dds <- DESeq(dds, betaPrior = F)
-    res <- results(dds, contrast = c("Group", groupTarget, groupRef))
+    dds <- DESeq2::DESeq(dds, betaPrior = F)
+    res <- DESeq2::results(dds, contrast = c("Group", groupTarget, groupRef))
+    # Write DE table to output file
+    DEfile <- file.path(outFolder, 'DESeq2_table.csv')
+    if (!dir.exists(outFolder)){stopifnot(dir.create(outFolder))}
+    write.csv(res, DEfile)
     return(res)
 }
 
 # getDE.edgeR ----
 
 getDE.edgeR <- function(dge, groupTarget, groupRef, outFolder = 'edgeR'){
-    if (all(is.na(dge$samples$Batch))){
+    if (all(is.na(dge[['samples']][,'Batch']))){
         design <- with(
-            dge$samples,
+            dge[['samples']],
             model.matrix(~ Group)
         )
     } else {
-        message('NOTE: Batch information supplied')
+        message('NOTE: Batch information applied')
         design <- with(
-            dge$samples,
+            dge[['samples']],
             model.matrix(~ Group + Batch)
         )
     }
-    dge <- calcNormFactors(dge)
-    dge <- estimateDisp(dge, design)
-    # et <- exactTest(deg)
-    fit <- glmQLFit(dge, design)
+    message('calcNormFactors ...')
+    dge <- edgeR::calcNormFactors(dge)
+    message('estimateDisp ...')
+    dge <- edgeR::estimateDisp(dge, design)
+    message('glmQLFit ...')
+    fit <- edgeR::glmQLFit(dge, design)
     # Define the comparison to perform
     myContrast <- rep(0, ncol(design))
-    idxGroupTarget <- (names(myContrast) == sprintf("Group%s", groupTarget))
-    idxGroupRef <- (names(myContrast) == sprintf("Group%s", groupRef))
+    idxGroupTarget <- (colnames(design) == sprintf("Group%s", groupTarget))
+    idxGroupRef <- (colnames(design) == sprintf("Group%s", groupRef))
     myContrast[idxGroupTarget] <- 1
-    myContrast[idxGroupRef] <- -1
-    lrt <- glmQLFTest(fit, contrast = myContrast)
-    print(names(design))
-    print(names(design))
-    et_tags = topTags(lrt, n = nrow(dge), sort.by = "none")[[1]]
+    myContrast[idxGroupRef] <- (-1)
+    message('glmLRT ...')
+    results <- glmLRT(fit, contrast = myContrast)
+    # et <- edgeR::exactTest(deg, c(groupRef, groupTarget))
+    # lrt <- glmQLFTest(fit, contrast = myContrast)
+    # print(colnames(results))
+    tp <- edgeR::topTags(results, n = nrow(dge), sort.by = "none")[[1]]
+    # Write DE table to output file
+    DEfile <- file.path(outFolder, 'edgeR_table.csv')
+    if (!dir.exists(outFolder)){stopifnot(dir.create(outFolder))}
+    write.csv(tp, DEfile)
+    return(tp)
 }
 
 # getLogCPM.edgeR ----
