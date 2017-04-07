@@ -1,7 +1,7 @@
 
 stopifnot(
     require('edgeR'),
-    requireNamespace('DESeq2')
+    require('DESeq2')
 )
 
 # Parameters ----
@@ -98,9 +98,9 @@ filterCounts <- function(x, cpm = 1, fraction = 0.8){
     return(xSubset)
 }
 
-# getDE.DESeq2 ----
+# normalise.DESeq2 ----
 
-getDE.DESeq2 <- function(dge, groupTarget, groupRef, outFolder = 'DESeq2'){
+normalise.DESeq2 <- function(dge, outFolder = 'DESeq2'){
     if (all(is.na(dge$samples$Batch))){
         colData <- dge$samples[,'Group', drop = FALSE]
         dds <- DESeq2::DESeqDataSetFromMatrix(
@@ -109,6 +109,31 @@ getDE.DESeq2 <- function(dge, groupTarget, groupRef, outFolder = 'DESeq2'){
     } else {
         message('NOTE: Batch information applied')
         colData <- dge$samples[,c('Group', 'Batch')]
+        dds <- DESeq2::DESeqDataSetFromMatrix(
+            countMat, colData,formula(~ condition + Batch)
+        )
+    }
+    dds <- DESeq2::DESeq(dds, betaPrior = F)
+    rl <- DESeq2::rlog(dds)
+    rlm <- assay(rl)
+    # Write DE table to output file
+    rlogFile <- file.path(outFolder, 'DESeq2_rlog.csv')
+    if (!dir.exists(outFolder)){stopifnot(dir.create(outFolder))}
+    write.csv(res, rlogFile)
+    return(dds)
+}
+
+# getDE.DESeq2 ----
+
+getDE.DESeq2 <- function(dds, groupTarget, groupRef, outFolder = 'DESeq2'){
+    if (all(is.na(dds[['samples']][,'Batch']))){
+        colData <- dds[['samples']][,'Group', drop = FALSE]
+        dds <- DESeq2::DESeqDataSetFromMatrix(
+            dds[['counts']], colData, formula(~ Group)
+        )
+    } else {
+        message('NOTE: Batch information applied')
+        colData <- dds[['samples']][,c('Group', 'Batch')]
         dds <- DESeq2::DESeqDataSetFromMatrix(
             countMat, colData,formula(~ condition + Batch)
         )
