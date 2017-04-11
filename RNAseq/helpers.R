@@ -4,10 +4,6 @@ stopifnot(
     require('DESeq2')
 )
 
-# Parameters ----
-
-significance <- 0.01
-
 # prepareFileInfo ----
 
 # Create a data.frame that associates RNAaseq count files to samples
