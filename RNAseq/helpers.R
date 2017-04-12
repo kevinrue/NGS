@@ -108,7 +108,7 @@ normalise.DESeq2 <- function(dge, outFolder = 'DESeq2'){
         message('NOTE: Batch information applied')
         colData <- dge$samples[,c('Group', 'Batch')]
         dds <- DESeq2::DESeqDataSetFromMatrix(
-            countMat, colData,formula(~ condition + Batch)
+            countMat, colData,formula(~ Group + Batch)
         )
     }
     dds <- DESeq2::DESeq(dds, betaPrior = F)
