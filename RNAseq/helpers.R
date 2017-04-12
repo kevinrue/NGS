@@ -16,6 +16,7 @@ prepareFileInfo.pattern <- function(
     # list all immediate subfolders (expected to be sample names)
     sampleNames <- list.files(folder)
     # Derive expected full file paths !!! Hard-coded !!!
+    # Later steps will fail if files are not where expected
     countFiles <- file.path(
         folder, sampleNames, 'htseq', sprintf(pattern, sampleNames)
     )
@@ -23,6 +24,7 @@ prepareFileInfo.pattern <- function(
     fileInfo <- data.frame(
         files = countFiles,
         SampleName = sampleNames,
+        Group = NA, Batch = NA,
         row.names = sampleNames
     )
     return(fileInfo)
@@ -150,7 +152,7 @@ getDE.DESeq2 <- function(dds, groupTarget, groupRef, outFolder = 'DESeq2'){
 
 # getDE.edgeR ----
 
-getDE.edgeR <- function(fit, groupTarget, groupRef, outFolder = 'edgeR'){
+getDE.edgeR <- function(dge, groupTarget, groupRef, outFolder = 'edgeR'){
     # Make the design matrix based on the Group and Batch information
     if (all(is.na(dge[['samples']][,'Batch']))){
         design <- with(
