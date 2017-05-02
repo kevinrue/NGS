@@ -1,3 +1,5 @@
+*.html
+
 training-files
 .idea
 .Rproj.user
