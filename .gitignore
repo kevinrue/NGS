@@ -5,3 +5,5 @@ training-files
 .Rproj.user
 .Rhistory
 DESeq2
+
+.nextflow*
