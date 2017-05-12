@@ -1,9 +1,13 @@
-*.html
 
-training-files
+# PyCharm
 .idea
+
+# RStudio
 .Rproj.user
 .Rhistory
-DESeq2
 
+# Nextflow hidden files
 .nextflow*
+
+# Sublime text temporary files
+._*
