@@ -4,7 +4,7 @@
  *
 */
 
-params.weblink = "ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Homo_sapiens/UCSC/hg38/Homo_sapiens_UCSC_hg38.tar.gz"
+params.weblink = "ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Homo_sapiens/UCSC/hg19/Homo_sapiens_UCSC_hg19.tar.gz"
 
 /* 
  * prints user convenience 
@@ -12,3 +12,4 @@ params.weblink = "ftp://igenome:G3nom3s4u@ussd-ftp.illumina.com/Homo_sapiens/UCS
 println "N E W   i G E N O M E   P I P E L I N E    "
 println "================================="
 println "weblink             : ${params.weblink}"
+
