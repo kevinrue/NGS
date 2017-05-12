@@ -8,7 +8,6 @@ params.outDir			= "${baseDir}/qc"
 params.fastq_version	= '0.11.5'
 params.python_version	= '2.7.11'
 params.multiqc_version	= '1.0.dev0'
-params.multiqc_exe	= '/users/ratcliff/kevin/anaconda3/envs/ngs27/bin/multiqc'
 
 // Inform user //
 
@@ -29,8 +28,6 @@ fastq_exe = "${progsDir}/fastqc/${params.fastq_version}/FastQC/fastqc" // NOTE: 
 python_exe = "\$(which python)" // NOTE: Error if fastq_exe does not exist ?
 multiqc_exe = "${progsDir}/multiqc/${params.multiqc_version}/multiqc" // NOTE: Error if multiqc_exe does not exist ?
 
-
-
 fastqFiles = Channel.fromPath( params.fastqs )
 
 
@@ -46,6 +43,7 @@ process fastqc {
 	file "*_fastqc.{zip,html}" into fastqc_results
 
 	"""
+	echo ${fastq_exe}
 	${fastq_exe} --format fastq --threads 10 ${fastqFile}
 	"""
 
@@ -67,8 +65,9 @@ process multiqc {
     file '*multiqc_data'
 
     """
-    module load python/${python_version}
-    multiqc -f .
+    module load python/${params.python_version}
+    echo ${multiqc_exe}
+    $multiqc_exe -f .
     """
 
 }
