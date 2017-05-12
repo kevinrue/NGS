@@ -62,7 +62,7 @@ process multiqc {
 	// input: used to link all relevant input files for MultiQC in the workdir
 	// collect() used to run once this step no matter how many inputs
 	input:
-	file ('qc/fastqc/*') from fastqc_results.collect()
+	file ('fastqc/*') from fastqc_results.collect()
 
 	output:
 	file 'multiqc_report.html'
