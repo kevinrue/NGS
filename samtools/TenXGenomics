@@ -1,0 +1,5 @@
+
+# [status: tested and approved]
+samtools flagstat possorted_genome_bam.bam
+# Does a full pass through the input file to calculate and print statistics to stdout.
+# see http://www.htslib.org/doc/samtools.html
