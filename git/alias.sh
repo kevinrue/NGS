@@ -1,0 +1,11 @@
+gba='git branch -a'
+gbd='git branch -d'
+gcb='git checkout -b'
+gcm='git commit -m'
+gco='git checkout'
+gfa='git fetch --all'
+glog='git log'
+gmo='git merge origin' 
+gpo='git push origin' # typically followed by branch name
+gpull='git pull'
+gst='git status'
