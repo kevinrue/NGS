@@ -4,14 +4,6 @@
 # Objective #
 #############
 # Set up symlinks to raw data
-# Manifest should have two columns:
-# 1: basename for fastq files
-# 2: basename for sample
-
-# Notes
-# - Currently hard-coded for paired data
-# - Currently hard-coded to disambiguate fastq files from samples sequenced on multiple lanes
-#   (_i.e._, that need to be later concatenated)
 
 
 # settings ----
@@ -44,8 +36,8 @@ do
     fastq_1="${sourceDir}/${baseFastq}_1.fastq.gz"
     fastq_2="${sourceDir}/${baseFastq}_2.fastq.gz"
 
-    sampleFile_1="${destinationDir}/${baseSample}-${rowIndex}_1.fastq.gz"
-    sampleFile_2="${destinationDir}/${baseSample}-${rowIndex}_2.fastq.gz"
+    sampleFile_1="${destinationDir}/${baseSample}-${rowIndex}.fastq.1.gz"
+    sampleFile_2="${destinationDir}/${baseSample}-${rowIndex}.fastq.2.gz"
 
 	cmd_1="ln -s ${fastq_1} ${sampleFile_1}"
 	cmd_2="ln -s ${fastq_2} ${sampleFile_2}"
