@@ -21,7 +21,7 @@ do
         echo "ftp_link: ${ftp_link}"
         cmd="wget -nv ${ftp_link}"
         echo "cmd: ${cmd}"
-        #eval $cmd                                                                                                                                                                             
+        eval $cmd                                                                                                                                                                             
         cmd="mkdir -v ${gse_id}"
         echo "cmd: ${cmd}"
         eval $cmd
