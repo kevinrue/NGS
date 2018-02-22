@@ -7,7 +7,7 @@
 #  -O	|	--outdir <path>	Output directory, default is current working directory ('.').
 
 # SRR to download
-srr_list=(SRR2038194 SRR2038195 SRR2038196 SRR203819)
+srr_list=(SRR12345 SRR67890) # dummy
 
 for srr_id in ${srr_list[@]}
 do
@@ -15,7 +15,7 @@ do
         cmd="mkdir -v ${srr_id}"
         echo "cmd: ${cmd}"
         eval $cmd                                                                                                                                                                           
-        cmd="fastq-dump -O ${srr_id} --bzip2 ${srr_id}"
+        cmd="fastq-dump -O ${srr_id} --gzip ${srr_id}"
         echo "cmd: ${cmd}"
         eval $cmd
 done
