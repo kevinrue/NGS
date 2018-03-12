@@ -1,4 +1,6 @@
 
+# Download ----
+
 # general case
 fastq-dump --gzip SRR390728
 
@@ -8,3 +10,6 @@ fastq-dump --gzip -I --split-files SRR390728
 # from: https://edwards.sdsu.edu/research/fastq-dump/
 fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip SRR_ID
 
+# Checksum / validation ----
+
+vdb-validate SRR390728
