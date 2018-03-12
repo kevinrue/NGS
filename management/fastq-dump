@@ -1,0 +1,10 @@
+
+# general case
+fastq-dump SRR390728
+
+# Paired-end data (from: https://ncbi.github.io/sra-tools/fastq-dump.html)
+fastq-dump -I --split-files SRR390728
+
+# from: https://edwards.sdsu.edu/research/fastq-dump/
+fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip SRR_ID
+
