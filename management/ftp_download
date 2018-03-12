@@ -1,1 +1,1 @@
-wget --ftp-user XXXXXXX --ftp-password XXXXX ftp://XXXXXXXX.ac.uk/folder/*
+wget -r --ftp-user XXXXXXX --ftp-password XXXXX ftp://XXXXXXXX.ac.uk/folder/*
