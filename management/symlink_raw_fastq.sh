@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Create symbolic links from a regex, without any renaming
+
+find /path/to/source/files -regextype posix-extended -regex '.*/prefix_[[:alnum:]]+_.suffix' -exec ln -s {} . \;
+
 # Create symbolic links to file, while renaming the link as follows:
 
 ## basename_1.fastq.gz -> basename.fastq.1.gz
